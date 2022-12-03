@@ -1,6 +1,6 @@
 const userModel = require("../models/userModel")
 const jwt = require('jsonwebtoken');
-
+const rolesModel = require("../models/rolesModel")
 
 module.exports.signUp = async (req, res) => {
 
@@ -9,13 +9,17 @@ module.exports.signUp = async (req, res) => {
     const url = req.body.url || 'https://i.picsum.photos/id/237/200/300.jpg?hmac=TmmQSbShHz9CdQm0NkEjx1Dyh_Y984R9LpNrpvH2D_U'
     const type = req.body.type || 'USER'
 
+    const roleData = await rolesModel.findOne({ role: type })
+    console.log(roleData, "13")
+    const roles = [roleData._id]
+
     if (!name) {
         return res.send({ code: 400, message: 'Name Required.' })
     } else if (!password) {
         return res.send({ code: 400, message: 'Password Required.' })
     } else {
         //  logic here
-        const newUser = await new userModel({ name, password, url, type, })
+        const newUser = await new userModel({ name, password, url, type, roles })
         const isSaved = await newUser.save()
         if (isSaved) {
             res.send({ code: 200, message: 'Saved' })
@@ -38,8 +42,7 @@ module.exports.login = async (req, res) => {
     } else {
         // main logic
 
-        const isNameExists = await userModel.findOne({ name: name })
-        console.log(isNameExists, "42")
+        const isNameExists = await userModel.findOne({ name: name }).populate('roles')
         if (isNameExists) {
             if (isNameExists.password == req.body.password) {
                 const token = jwt.sign({
@@ -48,7 +51,11 @@ module.exports.login = async (req, res) => {
                     password: isNameExists.password,
                     type: isNameExists.type
                 }, 'MYKEY');
-                return res.send({ code: 200, message: 'login success', token: token, userId: isNameExists._id })
+                return res.send({
+                    code: 200, message: 'login success',
+                    token: token,
+                    user: isNameExists,
+                })
             } else {
                 return res.send({ code: 404, message: 'Password Wrong' })
             }
