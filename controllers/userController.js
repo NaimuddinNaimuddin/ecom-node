@@ -46,11 +46,12 @@ module.exports.login = async (req, res) => {
         if (isNameExists) {
             if (isNameExists.password == req.body.password) {
                 const token = jwt.sign({
-                    expAfter: Math.floor(Date.now() / 1000) + (60 * 60),
+                    // expAfter: Math.floor(Date.now() / 1000) + (60 * 60),
                     name: isNameExists.name,
                     password: isNameExists.password,
-                    type: isNameExists.type
-                }, 'MYKEY');
+                    type: isNameExists.type,
+                    roles: isNameExists.roles,
+                }, 'MYKEY', { expiresIn: '1h' });
                 return res.send({
                     code: 200, message: 'login success',
                     token: token,
