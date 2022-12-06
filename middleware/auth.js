@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 
 module.exports.checkToken = async (req, res, next) => {
-    next()
     try {
         if (!req.headers.authorization) {
             return res.send({ code: 403, message: 'Unauthorized User' })

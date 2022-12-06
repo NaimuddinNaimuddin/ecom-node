@@ -4,6 +4,7 @@ var bodyParser = require('body-parser')
 const productController = require('./controllers/productController')
 const userController = require('./controllers/userController')
 const rolesController = require('./controllers/roleController')
+const paymentController = require('./controllers/paymentController')
 
 const auth = require('./middleware/auth')
 
@@ -29,6 +30,9 @@ app.post('/get-user-cart', auth.checkToken, userController.getCart)
 
 app.post('/add-role', auth.checkToken, rolesController.addRole)
 app.post('/delete-role', auth.checkToken, rolesController.deleteRole)
+
+app.post('/orders', paymentController.orders)
+app.post('/verify', paymentController.verfiy)
 
 app.listen(3001, () => {
     console.log('Shopping backend Running...')
